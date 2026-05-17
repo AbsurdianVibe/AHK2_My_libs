@@ -1,5 +1,5 @@
 #Requires AutoHotkey v2.0
-
+; test synchronizacji submodułu
 ; Oblicza odległość euklidesową między dwoma punktami (Pitagoras)
 ObliczDystans(x1, y1, x2, y2) => Sqrt((x1 - x2)**2 + (y1 - y2)**2)
 
