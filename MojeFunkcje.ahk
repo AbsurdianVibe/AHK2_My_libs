@@ -3,7 +3,7 @@
 ; Oblicza odległość euklidesową między dwoma punktami (Pitagoras)
 ObliczDystans(x1, y1, x2, y2) => Sqrt((x1 - x2)**2 + (y1 - y2)**2)
 
-; Sprawdza dystans myszy od punktu. Opcjonalnie aktualizuje referencję.
+/** Sprawdza dystans myszy od punktu. Opcjonalnie aktualizuje referencję. */
 SprawdzRuchMyszy(&refX, &refY, tolerancja := 0, aktualizuj := false) {
     MouseGetPos(&currX, &currY)
     dystans := ObliczDystans(refX, refY, currX, currY)
@@ -13,16 +13,14 @@ SprawdzRuchMyszy(&refX, &refY, tolerancja := 0, aktualizuj := false) {
 }
 
 ;------------------------------------------------------------------------------------------------------------------------------------------------------------
-/**
- * Obsługuje zaawansowaną logikę kliknięć: przytrzymanie, krótkie kliknięcie, podwójne kliknięcie itp.
+/** Obsługuje zaawansowaną logikę kliknięć: przytrzymanie, krótkie kliknięcie, podwójne kliknięcie itp.
  * @param {String} klawisz - Nazwa klawisza do nasłuchiwania (np. "LButton", "XButton1").
  * @param {Func} akcjaShort - Funkcja wywoływana przy krótkim kliknięciu.
  * @param {Func} akcjaHold - Funkcja wywoływana przy przytrzymaniu.
  * @param {Func} [akcjaDoubleShort=""] - (Opcjonalne) Funkcja przy zwykłym dwukliku.
  * @param {Func} [akcjaDoubleHold=""] - (Opcjonalne) Funkcja przy dwukliku i przytrzymaniu.
  * @param {Float} [czasPrzytrzymania=0.2] - Czas w sekundach, po którym uznaje się przytrzymanie.
- * @param {Integer} [trybInstant=0] - Jeśli > 0, `akcjaHold` odpala się natychmiast. Wartość określa limit pikseli, w ramach którego ruch myszy jest ignorowany dla akcji `akcjaShort`.
- */
+ * @param {Integer} [trybInstant=0] - Jeśli > 0, `akcjaHold` odpala się natychmiast. Wartość określa limit pikseli, w ramach którego ruch myszy jest ignorowany dla akcji `akcjaShort`. */
 Multiklik(klawisz, akcjaShort, akcjaHold, akcjaDoubleShort := "", akcjaDoubleHold := "", czasPrzytrzymania := 0.2, trybInstant := 0) {
     ; SCENARIUSZ INSTANT
     if (trybInstant > 0) {
