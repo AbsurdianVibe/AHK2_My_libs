@@ -5,7 +5,7 @@
  * @param myRealTime - True to bypass RAM buffer and write directly to disk.
  * @param myLogDir - Optional custom directory path for logs. */
 QPC(krok, myRealTime := false, myLogDir?) {
-    static freq := 0, last := 0, sciezkaLogu := "", myPersistentDir := "D:\PRACA\skrypryAHK\Diag"
+    static freq := 0, last := 0, sciezkaLogu := "", myPersistentDir := "C:\CODE\AHK2\Diag"
     static myLogBuffer := []
     
     if IsSet(myLogDir)
