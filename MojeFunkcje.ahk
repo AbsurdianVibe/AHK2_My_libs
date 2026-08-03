@@ -1,7 +1,7 @@
 #Requires AutoHotkey v2.0
 ; test synchronizacji submodułu
 ; Oblicza odległość euklidesową między dwoma punktami (Pitagoras)
-ObliczDystans(x1, y1, x2, y2) => Sqrt((x1 - x2)**2 + (y1 - y2)**2)
+ObliczDystans(x1, y1, x2, y2) => Sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 /** Sprawdza dystans myszy od punktu. Opcjonalnie aktualizuje referencję. */
 SprawdzRuchMyszy(&refX, &refY, tolerancja := 0, aktualizuj := false) {
@@ -20,8 +20,10 @@ SprawdzRuchMyszy(&refX, &refY, tolerancja := 0, aktualizuj := false) {
  * @param {Func} [akcjaDoubleShort=""] - (Opcjonalne) Funkcja przy zwykłym dwukliku.
  * @param {Func} [akcjaDoubleHold=""] - (Opcjonalne) Funkcja przy dwukliku i przytrzymaniu.
  * @param {Float} [czasPrzytrzymania=0.2] - Czas w sekundach, po którym uznaje się przytrzymanie.
- * @param {Integer} [trybInstant=0] - Jeśli > 0, `akcjaHold` odpala się natychmiast. Wartość określa limit pikseli, w ramach którego ruch myszy jest ignorowany dla akcji `akcjaShort`. */
-Multiklik(klawisz, akcjaShort, akcjaHold, akcjaDoubleShort := "", akcjaDoubleHold := "", czasPrzytrzymania := 0.2, trybInstant := 0) {
+ * @param {Integer} [trybInstant=0] - Jeśli > 0, `akcjaHold` odpala się natychmiast. Wartość określa limit pikseli, w ramach którego ruch myszy jest ignorowany dla akcji `akcjaShort`. 
+ * @param {Boolean} [passHoldUntouched=false] - Jeśli true, klawisz zostanie wysłany podczas puszczenia hold, jeśli żaden inny klawisz nie został w między czasie użyty. 
+ */
+Multiklik(klawisz, akcjaShort, akcjaHold, akcjaDoubleShort := "", akcjaDoubleHold := "", czasPrzytrzymania := 0.2, trybInstant := 0, PassHoldUntouched := false) {
     ; SCENARIUSZ INSTANT
     if (trybInstant > 0) {
         ; 1. Hold startuje natychmiast
@@ -29,14 +31,14 @@ Multiklik(klawisz, akcjaShort, akcjaHold, akcjaDoubleShort := "", akcjaDoubleHol
         start := A_TickCount
         if (akcjaHold)
             akcjaHold()
-        
+
         KeyWait(klawisz) ; Czekaj na puszczenie
         czasPierwszego := (A_TickCount - start) / 1000
         dystans := SprawdzRuchMyszy(&startX, &startY)
 
         ; Szybkie puszczenie + brak ruchu -> sprawdzenie dwukliku
         if (czasPierwszego < czasPrzytrzymania && dystans <= trybInstant) {
-            
+
             maDwukliki := (akcjaDoubleShort != "" || akcjaDoubleHold != "")
 
             ; Brak dwuklików -> Klik natychmiastowy
@@ -49,7 +51,7 @@ Multiklik(klawisz, akcjaShort, akcjaHold, akcjaDoubleShort := "", akcjaDoubleHol
             ; warunki spełnione, Oczekiwanie na drugi klik
             if KeyWait(klawisz, "D T" . czasPrzytrzymania) {
                 ; 2. Double Hold natychmiast
-                    start2 := A_TickCount
+                start2 := A_TickCount
                 if (akcjaDoubleHold)
                     akcjaDoubleHold()
 
@@ -65,6 +67,8 @@ Multiklik(klawisz, akcjaShort, akcjaHold, akcjaDoubleShort := "", akcjaDoubleHol
                 if (akcjaShort)
                     akcjaShort()
             }
+        } else if (czasPierwszego >= czasPrzytrzymania && PassHoldUntouched && A_PriorKey == klawisz) {
+            Send("{Blind}{" klawisz "}")
         }
         return
     }
@@ -75,15 +79,20 @@ Multiklik(klawisz, akcjaShort, akcjaHold, akcjaDoubleShort := "", akcjaDoubleHol
     ; 1. PRZYTRZYMANIE
     if !KeyWait(klawisz, "T" . czasPrzytrzymania) {
         (akcjaHold) && akcjaHold()
+
+        KeyWait(klawisz)
+        if (PassHoldUntouched && A_PriorKey == klawisz) {
+            Send("{Blind}{" klawisz "}")
+        }
         return
-    } 
-    
+    }
+
     ; Szybka ścieżka (brak dwukliku)
     if (!czyCzekac) {
         (akcjaShort) && akcjaShort()
         return ; Stop (bez czekania na dwuklik)
     }
-        
+
     ; 2. PODWÓJNE KLIKNIĘCIE
     if KeyWait(klawisz, "D T" . czasPrzytrzymania) {
         if !KeyWait(klawisz, "T" . czasPrzytrzymania) {
